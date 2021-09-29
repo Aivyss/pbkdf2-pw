@@ -23,7 +23,9 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 'use strict';
-const cryto = require('crypto');
+import crypto from 'node:crypto';
+
+//const cryto = require('crypto');
 const fastfall = require('fastfall');
 
 // we can support a digest if we are not in node v0.10
@@ -51,8 +53,12 @@ interface IOptions {
     salt: string | Buffer;
 }
 
+interface IGenCallback {
+    (err: Error | null, opts: IOptions): void;
+}
+
 interface IHasherCallback {
-    (err: Error, password: string, salt: string, hash: string): void;
+    (err: Error | null, password: string, salt: string, hash: string): void;
 }
 
 interface IHasher {
@@ -115,14 +121,18 @@ module.exports = function build(options?: GenerateOption): IHasher {
      * @param {Object} opts The options (where the new password will be stored)
      * @param {Function} cb The callback
      */
-    function genPass(opts: IOptions, cb: Function) {
+    function genPass(opts: IOptions, cb: IGenCallback) {
         // generate a 10-bytes password
-        cryto.randomBytes(10, function (err: Error, buffer: Buffer) {
-            if (buffer) {
-                opts.password = buffer.toString('base64');
-            }
+        let err: Error | null = null;
+
+        try {
+            const buffer = crypto.randomBytes(10);
+            opts.password = buffer.toString('base64');
+        } catch (e) {
+            err = e as Error;
+        } finally {
             cb(err, opts);
-        });
+        }
     }
 
     /**
@@ -132,11 +142,17 @@ module.exports = function build(options?: GenerateOption): IHasher {
      * @param {Object} opts The options (where the new password will be stored)
      * @param {Function} cb The callback
      */
-    function genSalt(opts: IOptions, cb: Function) {
-        cryto.randomBytes(saltLength, function (err: Error, buf: Buffer) {
-            opts.salt = buf;
+    function genSalt(opts: IOptions, cb: IGenCallback) {
+        let err: Error | null = null;
+
+        try {
+            const buffer = crypto.randomBytes(saltLength);
+            opts.salt = buffer;
+        } catch (e) {
+            err = e as Error;
+        } finally {
             cb(err, opts);
-        });
+        }
     }
 
     /**
@@ -153,13 +169,13 @@ module.exports = function build(options?: GenerateOption): IHasher {
      * @param {Function} cb The callback
      */
     function genHashWithDigest(opts: IOptions, cb: Function) {
-        cryto.pbkdf2(
+        crypto.pbkdf2(
             opts.password,
             opts.salt,
             iterations,
             keyLength,
             digest,
-            function (err: Error, hash: string | Buffer) {
+            function (err: Error | null, hash: string | Buffer) {
                 if (typeof hash === 'string') {
                     hash = Buffer.from(hash, 'binary');
                 }
@@ -167,6 +183,20 @@ module.exports = function build(options?: GenerateOption): IHasher {
                 cb(err, opts.password, opts.salt.toString('base64'), hash.toString('base64'));
             },
         );
+        // cryto.pbkdf2(
+        //     opts.password,
+        //     opts.salt,
+        //     iterations,
+        //     keyLength,
+        //     digest,
+        //     function (err: Error, hash: string | Buffer) {
+        //         if (typeof hash === 'string') {
+        //             hash = Buffer.from(hash, 'binary');
+        //         }
+
+        //         cb(err, opts.password, opts.salt.toString('base64'), hash.toString('base64'));
+        //     },
+        // );
     }
 
     /**
@@ -183,13 +213,20 @@ module.exports = function build(options?: GenerateOption): IHasher {
      * @param {Function} cb The callback
      */
     function genHashWithoutDigest(opts: IOptions, cb: IHasherCallback) {
-        cryto.pbkdf2(opts.password, opts.salt, iterations, keyLength, function (err: Error, hash: string | Buffer) {
-            if (typeof hash === 'string') {
-                hash = Buffer.from(hash, 'binary');
-            }
+        crypto.pbkdf2(
+            opts.password,
+            opts.salt,
+            iterations,
+            keyLength,
+            digest,
+            function (err: Error | null, hash: string | Buffer) {
+                if (typeof hash === 'string') {
+                    hash = Buffer.from(hash, 'binary');
+                }
 
-            cb(err, opts.password, opts.salt.toString('base64'), hash.toString('base64'));
-        });
+                cb(err, opts.password, opts.salt.toString('base64'), hash.toString('base64'));
+            },
+        );
     }
 
     return hasher;

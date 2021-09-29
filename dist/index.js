@@ -23,7 +23,12 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 'use strict';
-var cryto = require('crypto');
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var node_crypto_1 = __importDefault(require("node:crypto"));
+//const cryto = require('crypto');
 var fastfall = require('fastfall');
 // we can support a digest if we are not in node v0.10
 var supportsDigest = process.version.indexOf('v0.10') !== 0;
@@ -82,12 +87,17 @@ module.exports = function build(options) {
      */
     function genPass(opts, cb) {
         // generate a 10-bytes password
-        cryto.randomBytes(10, function (err, buffer) {
-            if (buffer) {
-                opts.password = buffer.toString('base64');
-            }
+        var err = null;
+        try {
+            var buffer = node_crypto_1.default.randomBytes(10);
+            opts.password = buffer.toString('base64');
+        }
+        catch (e) {
+            err = e;
+        }
+        finally {
             cb(err, opts);
-        });
+        }
     }
     /**
      * Generates a new salt
@@ -97,10 +107,17 @@ module.exports = function build(options) {
      * @param {Function} cb The callback
      */
     function genSalt(opts, cb) {
-        cryto.randomBytes(saltLength, function (err, buf) {
-            opts.salt = buf;
+        var err = null;
+        try {
+            var buffer = node_crypto_1.default.randomBytes(saltLength);
+            opts.salt = buffer;
+        }
+        catch (e) {
+            err = e;
+        }
+        finally {
             cb(err, opts);
-        });
+        }
     }
     /**
      * Generates a new hash using the password and the salt
@@ -116,12 +133,25 @@ module.exports = function build(options) {
      * @param {Function} cb The callback
      */
     function genHashWithDigest(opts, cb) {
-        cryto.pbkdf2(opts.password, opts.salt, iterations, keyLength, digest, function (err, hash) {
+        node_crypto_1.default.pbkdf2(opts.password, opts.salt, iterations, keyLength, digest, function (err, hash) {
             if (typeof hash === 'string') {
                 hash = Buffer.from(hash, 'binary');
             }
             cb(err, opts.password, opts.salt.toString('base64'), hash.toString('base64'));
         });
+        // cryto.pbkdf2(
+        //     opts.password,
+        //     opts.salt,
+        //     iterations,
+        //     keyLength,
+        //     digest,
+        //     function (err: Error, hash: string | Buffer) {
+        //         if (typeof hash === 'string') {
+        //             hash = Buffer.from(hash, 'binary');
+        //         }
+        //         cb(err, opts.password, opts.salt.toString('base64'), hash.toString('base64'));
+        //     },
+        // );
     }
     /**
      * Generates a new hash using the password and the salt
@@ -137,7 +167,7 @@ module.exports = function build(options) {
      * @param {Function} cb The callback
      */
     function genHashWithoutDigest(opts, cb) {
-        cryto.pbkdf2(opts.password, opts.salt, iterations, keyLength, function (err, hash) {
+        node_crypto_1.default.pbkdf2(opts.password, opts.salt, iterations, keyLength, digest, function (err, hash) {
             if (typeof hash === 'string') {
                 hash = Buffer.from(hash, 'binary');
             }

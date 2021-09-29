@@ -22,7 +22,6 @@
     },
     "main": "dist/index.js",
     "dependencies": {
-        "crypto": "^1.0.1",
         "fastfall": "^1.5.1"
     },
     "devDependencies": {
