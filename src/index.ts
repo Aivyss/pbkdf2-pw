@@ -50,7 +50,7 @@ interface GenerateOption {
 
 interface IOptions {
     password: string;
-    salt: string | Buffer;
+    salt?: string | Buffer;
 }
 
 interface IGenCallback {
@@ -171,7 +171,7 @@ export default function build(options?: GenerateOption): IHasher {
     function genHashWithDigest(opts: IOptions, cb: Function) {
         crypto.pbkdf2(
             opts.password,
-            opts.salt,
+            opts.salt!,
             iterations,
             keyLength,
             digest,
@@ -180,7 +180,7 @@ export default function build(options?: GenerateOption): IHasher {
                     hash = Buffer.from(hash, 'binary');
                 }
 
-                cb(err, opts.password, opts.salt.toString('base64'), hash.toString('base64'));
+                cb(err, opts.password, opts.salt!.toString('base64'), hash.toString('base64'));
             },
         );
         // cryto.pbkdf2(
@@ -215,7 +215,7 @@ export default function build(options?: GenerateOption): IHasher {
     function genHashWithoutDigest(opts: IOptions, cb: IHasherCallback) {
         crypto.pbkdf2(
             opts.password,
-            opts.salt,
+            opts.salt!,
             iterations,
             keyLength,
             digest,
@@ -224,7 +224,7 @@ export default function build(options?: GenerateOption): IHasher {
                     hash = Buffer.from(hash, 'binary');
                 }
 
-                cb(err, opts.password, opts.salt.toString('base64'), hash.toString('base64'));
+                cb(err, opts.password, opts.salt!.toString('base64'), hash.toString('base64'));
             },
         );
     }

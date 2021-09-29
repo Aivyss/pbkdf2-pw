@@ -16,7 +16,7 @@ interface GenerateOption {
 }
 interface IOptions {
     password: string;
-    salt: string | Buffer;
+    salt?: string | Buffer;
 }
 interface IHasherCallback {
     (err: Error | null, password: string, salt: string, hash: string): void;
