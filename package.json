@@ -1,6 +1,6 @@
 {
     "name": "pbkdf2-pw",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "homepage": "https://github.com/Aivyss/pbkdf2-pw",
     "files": [
         "dist",
