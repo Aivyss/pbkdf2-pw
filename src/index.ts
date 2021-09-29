@@ -65,7 +65,7 @@ interface IHasher {
     (opts: IOptions, callback: IHasherCallback): void;
 }
 
-module.exports = function build(options?: GenerateOption): IHasher {
+export default function build(options?: GenerateOption): IHasher {
     const saltLength = options ? options.saltLength : 64;
     const iterations = options ? options.iterations : 10000;
     const keyLength = options ? options.keyLength : 128;
@@ -230,4 +230,4 @@ module.exports = function build(options?: GenerateOption): IHasher {
     }
 
     return hasher;
-};
+}

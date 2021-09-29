@@ -32,7 +32,7 @@ var node_crypto_1 = __importDefault(require("node:crypto"));
 var fastfall = require('fastfall');
 // we can support a digest if we are not in node v0.10
 var supportsDigest = process.version.indexOf('v0.10') !== 0;
-module.exports = function build(options) {
+function build(options) {
     var saltLength = options ? options.saltLength : 64;
     var iterations = options ? options.iterations : 10000;
     var keyLength = options ? options.keyLength : 128;
@@ -175,4 +175,5 @@ module.exports = function build(options) {
         });
     }
     return hasher;
-};
+}
+exports.default = build;
