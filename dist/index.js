@@ -28,8 +28,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var node_crypto_1 = __importDefault(require("node:crypto"));
+var fastfall_ts_1 = __importDefault(require("fastfall-ts"));
 //const cryto = require('crypto');
-var fastfall = require('fastfall');
+// const fastfall = require('fastfall');
 // we can support a digest if we are not in node v0.10
 var supportsDigest = process.version.indexOf('v0.10') !== 0;
 function build(options) {
@@ -41,8 +42,8 @@ function build(options) {
     if (digest !== 'sha1' && !supportsDigest) {
         throw new Error('v0.10 does not support setting a digest');
     }
-    var passNeeded = fastfall([genPass, genSalt, genHash]);
-    var saltNeeded = fastfall([genSalt, genHash]);
+    var passNeeded = (0, fastfall_ts_1.default)([genPass, genSalt, genHash], [function () { }]);
+    var saltNeeded = (0, fastfall_ts_1.default)([genSalt, genHash], [function () { }]);
     /**
      * Hash a password, using a hash and the pbkd2
      * crypto module.

@@ -24,9 +24,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 */
 'use strict';
 import crypto from 'node:crypto';
+import fastfall from 'fastfall-ts';
 
 //const cryto = require('crypto');
-const fastfall = require('fastfall');
+// const fastfall = require('fastfall');
 
 // we can support a digest if we are not in node v0.10
 const supportsDigest = process.version.indexOf('v0.10') !== 0;
@@ -76,9 +77,9 @@ export default function build(options?: GenerateOption): IHasher {
         throw new Error('v0.10 does not support setting a digest');
     }
 
-    const passNeeded = fastfall([genPass, genSalt, genHash]);
+    const passNeeded = fastfall([genPass, genSalt, genHash], [function () {}]);
 
-    const saltNeeded = fastfall([genSalt, genHash]);
+    const saltNeeded = fastfall([genSalt, genHash], [function () {}]);
 
     /**
      * Hash a password, using a hash and the pbkd2
